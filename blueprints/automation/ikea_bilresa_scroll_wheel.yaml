@@ -1,0 +1,867 @@
+blueprint:
+  name: IKEA BILRESA Scroll Wheel (Matter)
+  description: >-
+    Control lights with the IKEA BILRESA scroll wheel over Matter.
+
+
+    Pick the remote, then for each of the three channels choose what the wheel
+    controls (brightness, color temperature or your own actions) and which lights
+    it targets. Single press toggles the lights by default. Double, triple, long
+    press, hold and release are available as custom actions.
+
+
+    Switch channels on the remote with the small button below the three LEDs.
+
+
+    Scrolling arrives as one batched event when you stop turning the wheel.
+    For per-notch live response, enable the hidden "Current position" sensors on the
+    BILRESA device page (Settings > Devices > BILRESA > 9 entities not shown); the
+    blueprint picks them up automatically.
+  domain: automation
+  author: pentacore
+  source_url: https://github.com/pentacore/Home-Assistant-Blueprints/blob/main/blueprints/automation/ikea_bilresa_scroll_wheel.yaml
+  homeassistant:
+    min_version: 2026.9.0
+
+  input:
+    remote:
+      name: BILRESA scroll wheel
+      description: The IKEA BILRESA scroll wheel remote (Matter integration).
+      selector:
+        device:
+          filter:
+            - integration: matter
+              manufacturer: IKEA of Sweden
+
+    # ------------------------------------------------------------------ channel 1
+    channel_1:
+      name: Channel 1
+      icon: mdi:numeric-1-circle
+      collapsed: false
+      input:
+        ch1_mode:
+          name: Wheel controls
+          default: brightness
+          selector:
+            select:
+              mode: dropdown
+              options:
+                - label: Light brightness
+                  value: brightness
+                - label: Light color temperature
+                  value: color_temp
+                - label: Custom actions
+                  value: custom
+        ch1_lights:
+          name: Lights
+          description: Lights controlled by the wheel and toggled by a single press.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: light
+        ch1_scroll_up:
+          name: Custom scroll up (clockwise)
+          description: >-
+            Only used when "Wheel controls" is "Custom actions".
+            Variables available: `steps` (notches, 1-8), `direction` ("up" or "down"), `channel` (1-3).
+          default: []
+          selector:
+            action: {}
+        ch1_scroll_down:
+          name: Custom scroll down (counter-clockwise)
+          description: Only used when "Wheel controls" is "Custom actions". Same variables as scroll up.
+          default: []
+          selector:
+            action: {}
+        ch1_press:
+          name: Single press
+          description: Runs in addition to the default light toggle (see Behaviour settings).
+          default: []
+          selector:
+            action: {}
+        ch1_double:
+          name: Double press
+          default: []
+          selector:
+            action: {}
+        ch1_triple:
+          name: Triple press
+          default: []
+          selector:
+            action: {}
+        ch1_long:
+          name: Long press
+          description: Runs once when the button has been held long enough.
+          default: []
+          selector:
+            action: {}
+        ch1_hold:
+          name: Hold (repeating)
+          description: Repeats while the button is held. Interval is set in Behaviour settings.
+          default: []
+          selector:
+            action: {}
+        ch1_release:
+          name: Release after hold
+          default: []
+          selector:
+            action: {}
+
+    # ------------------------------------------------------------------ channel 2
+    channel_2:
+      name: Channel 2
+      icon: mdi:numeric-2-circle
+      collapsed: true
+      input:
+        ch2_mode:
+          name: Wheel controls
+          default: brightness
+          selector:
+            select:
+              mode: dropdown
+              options:
+                - label: Light brightness
+                  value: brightness
+                - label: Light color temperature
+                  value: color_temp
+                - label: Custom actions
+                  value: custom
+        ch2_lights:
+          name: Lights
+          description: Lights controlled by the wheel and toggled by a single press.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: light
+        ch2_scroll_up:
+          name: Custom scroll up (clockwise)
+          description: >-
+            Only used when "Wheel controls" is "Custom actions".
+            Variables available: `steps` (notches, 1-8), `direction` ("up" or "down"), `channel` (1-3).
+          default: []
+          selector:
+            action: {}
+        ch2_scroll_down:
+          name: Custom scroll down (counter-clockwise)
+          description: Only used when "Wheel controls" is "Custom actions". Same variables as scroll up.
+          default: []
+          selector:
+            action: {}
+        ch2_press:
+          name: Single press
+          description: Runs in addition to the default light toggle (see Behaviour settings).
+          default: []
+          selector:
+            action: {}
+        ch2_double:
+          name: Double press
+          default: []
+          selector:
+            action: {}
+        ch2_triple:
+          name: Triple press
+          default: []
+          selector:
+            action: {}
+        ch2_long:
+          name: Long press
+          description: Runs once when the button has been held long enough.
+          default: []
+          selector:
+            action: {}
+        ch2_hold:
+          name: Hold (repeating)
+          description: Repeats while the button is held. Interval is set in Behaviour settings.
+          default: []
+          selector:
+            action: {}
+        ch2_release:
+          name: Release after hold
+          default: []
+          selector:
+            action: {}
+
+    # ------------------------------------------------------------------ channel 3
+    channel_3:
+      name: Channel 3
+      icon: mdi:numeric-3-circle
+      collapsed: true
+      input:
+        ch3_mode:
+          name: Wheel controls
+          default: brightness
+          selector:
+            select:
+              mode: dropdown
+              options:
+                - label: Light brightness
+                  value: brightness
+                - label: Light color temperature
+                  value: color_temp
+                - label: Custom actions
+                  value: custom
+        ch3_lights:
+          name: Lights
+          description: Lights controlled by the wheel and toggled by a single press.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: light
+        ch3_scroll_up:
+          name: Custom scroll up (clockwise)
+          description: >-
+            Only used when "Wheel controls" is "Custom actions".
+            Variables available: `steps` (notches, 1-8), `direction` ("up" or "down"), `channel` (1-3).
+          default: []
+          selector:
+            action: {}
+        ch3_scroll_down:
+          name: Custom scroll down (counter-clockwise)
+          description: Only used when "Wheel controls" is "Custom actions". Same variables as scroll up.
+          default: []
+          selector:
+            action: {}
+        ch3_press:
+          name: Single press
+          description: Runs in addition to the default light toggle (see Behaviour settings).
+          default: []
+          selector:
+            action: {}
+        ch3_double:
+          name: Double press
+          default: []
+          selector:
+            action: {}
+        ch3_triple:
+          name: Triple press
+          default: []
+          selector:
+            action: {}
+        ch3_long:
+          name: Long press
+          description: Runs once when the button has been held long enough.
+          default: []
+          selector:
+            action: {}
+        ch3_hold:
+          name: Hold (repeating)
+          description: Repeats while the button is held. Interval is set in Behaviour settings.
+          default: []
+          selector:
+            action: {}
+        ch3_release:
+          name: Release after hold
+          default: []
+          selector:
+            action: {}
+
+    # ------------------------------------------------------------------ light settings
+    light_settings:
+      name: Light settings
+      icon: mdi:lightbulb-on-outline
+      collapsed: true
+      input:
+        brightness_step:
+          name: Brightness per notch
+          description: Brightness change in percent for each notch of the wheel.
+          default: 10
+          selector:
+            number:
+              min: 1
+              max: 50
+              step: 1
+              unit_of_measurement: "%"
+              mode: slider
+        min_brightness:
+          name: Minimum brightness
+          description: Scrolling down never goes below this level (unless "Scroll down turns lights off" is on).
+          default: 5
+          selector:
+            number:
+              min: 1
+              max: 50
+              step: 1
+              unit_of_measurement: "%"
+              mode: slider
+        dim_up_turns_on:
+          name: Scroll up turns lights on
+          description: Scrolling up on a light that is off turns it on at a low level.
+          default: true
+          selector:
+            boolean: {}
+        dim_down_turns_off:
+          name: Scroll down turns lights off
+          description: Scrolling down past the minimum brightness turns the light off.
+          default: false
+          selector:
+            boolean: {}
+        color_temp_step:
+          name: Color temperature per notch
+          description: Change in Kelvin for each notch. Clockwise = cooler (higher Kelvin).
+          default: 150
+          selector:
+            number:
+              min: 25
+              max: 1000
+              step: 25
+              unit_of_measurement: K
+              mode: slider
+        transition:
+          name: Transition
+          description: Transition time for light changes.
+          default: 0.3
+          selector:
+            number:
+              min: 0
+              max: 5
+              step: 0.1
+              unit_of_measurement: s
+              mode: slider
+
+    # ------------------------------------------------------------------ behaviour
+    behaviour:
+      name: Behaviour
+      icon: mdi:tune
+      collapsed: true
+      input:
+        press_toggles_lights:
+          name: Single press toggles the lights
+          description: Turn off if you only want your custom single press action to run.
+          default: true
+          selector:
+            boolean: {}
+        reverse_direction:
+          name: Reverse wheel direction
+          description: Swap clockwise and counter-clockwise.
+          default: false
+          selector:
+            boolean: {}
+        scroll_mode:
+          name: Scroll response
+          description: >-
+            Auto uses live per-notch response when the hidden "Current position" sensors of the
+            BILRESA are enabled and falls back to batched otherwise. Batched waits until you stop
+            turning and applies all notches at once (max 8).
+          default: auto
+          selector:
+            select:
+              mode: dropdown
+              options:
+                - label: Auto (recommended)
+                  value: auto
+                - label: Batched
+                  value: batched
+                - label: Live (requires the Current position sensors)
+                  value: live
+        hold_repeat_delay:
+          name: Hold repeat interval
+          description: Time between repeats of the "Hold (repeating)" action.
+          default: 0.25
+          selector:
+            number:
+              min: 0.1
+              max: 2
+              step: 0.05
+              unit_of_measurement: s
+              mode: slider
+
+    # ------------------------------------------------------------------ manual mapping
+    manual_mapping:
+      name: Advanced - manual entity mapping
+      icon: mdi:link-variant
+      collapsed: true
+      description: >-
+        Only needed if you renamed the BILRESA entities so that the automatic detection fails.
+        Entities are detected by their ID ending in _1 to _9 (Matter endpoint) or pos_N_cw /
+        pos_N_ccw / pos_N_press. Anything you set here overrides the detection.
+      input:
+        ovr_ch1_cw:
+          name: Channel 1 - scroll up event (endpoint 1)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch1_ccw:
+          name: Channel 1 - scroll down event (endpoint 2)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch1_press:
+          name: Channel 1 - button event (endpoint 3)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch2_cw:
+          name: Channel 2 - scroll up event (endpoint 4)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch2_ccw:
+          name: Channel 2 - scroll down event (endpoint 5)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch2_press:
+          name: Channel 2 - button event (endpoint 6)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch3_cw:
+          name: Channel 3 - scroll up event (endpoint 7)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch3_ccw:
+          name: Channel 3 - scroll down event (endpoint 8)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_ch3_press:
+          name: Channel 3 - button event (endpoint 9)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: event
+        ovr_sen_ch1_cw:
+          name: Channel 1 - scroll up "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+        ovr_sen_ch1_ccw:
+          name: Channel 1 - scroll down "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+        ovr_sen_ch2_cw:
+          name: Channel 2 - scroll up "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+        ovr_sen_ch2_ccw:
+          name: Channel 2 - scroll down "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+        ovr_sen_ch3_cw:
+          name: Channel 3 - scroll up "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+        ovr_sen_ch3_ccw:
+          name: Channel 3 - scroll down "Current position" sensor (live mode)
+          default: null
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+
+mode: parallel
+max: 20
+max_exceeded: silent
+
+# Resolved once when the automation loads. Only limited templates are allowed here,
+# which is why entities are found through device_entities() and regex matching.
+trigger_variables:
+  remote: !input remote
+  ovr_ch1_cw: !input ovr_ch1_cw
+  ovr_ch1_ccw: !input ovr_ch1_ccw
+  ovr_ch1_press: !input ovr_ch1_press
+  ovr_ch2_cw: !input ovr_ch2_cw
+  ovr_ch2_ccw: !input ovr_ch2_ccw
+  ovr_ch2_press: !input ovr_ch2_press
+  ovr_ch3_cw: !input ovr_ch3_cw
+  ovr_ch3_ccw: !input ovr_ch3_ccw
+  ovr_ch3_press: !input ovr_ch3_press
+  ovr_sen_ch1_cw: !input ovr_sen_ch1_cw
+  ovr_sen_ch1_ccw: !input ovr_sen_ch1_ccw
+  ovr_sen_ch2_cw: !input ovr_sen_ch2_cw
+  ovr_sen_ch2_ccw: !input ovr_sen_ch2_ccw
+  ovr_sen_ch3_cw: !input ovr_sen_ch3_cw
+  ovr_sen_ch3_ccw: !input ovr_sen_ch3_ccw
+
+  # Matter endpoints: channel N -> clockwise 3N-2, counter-clockwise 3N-1, button 3N
+  ent_ch1_cw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_1|pos_1_cw)$') | list %}
+    {{ ovr_ch1_cw if ovr_ch1_cw else (l[0] if l else '') }}
+  ent_ch1_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_2|pos_1_ccw)$') | list %}
+    {{ ovr_ch1_ccw if ovr_ch1_ccw else (l[0] if l else '') }}
+  ent_ch1_press: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_3|pos_1_press)$') | list %}
+    {{ ovr_ch1_press if ovr_ch1_press else (l[0] if l else '') }}
+  ent_ch2_cw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_4|pos_2_cw)$') | list %}
+    {{ ovr_ch2_cw if ovr_ch2_cw else (l[0] if l else '') }}
+  ent_ch2_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_5|pos_2_ccw)$') | list %}
+    {{ ovr_ch2_ccw if ovr_ch2_ccw else (l[0] if l else '') }}
+  ent_ch2_press: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_6|pos_2_press)$') | list %}
+    {{ ovr_ch2_press if ovr_ch2_press else (l[0] if l else '') }}
+  ent_ch3_cw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_7|pos_3_cw)$') | list %}
+    {{ ovr_ch3_cw if ovr_ch3_cw else (l[0] if l else '') }}
+  ent_ch3_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_8|pos_3_ccw)$') | list %}
+    {{ ovr_ch3_ccw if ovr_ch3_ccw else (l[0] if l else '') }}
+  ent_ch3_press: >-
+    {% set l = device_entities(remote) | select('match', '^event[.].*(_9|pos_3_press)$') | list %}
+    {{ ovr_ch3_press if ovr_ch3_press else (l[0] if l else '') }}
+
+  # Hidden "Current position" sensors, used for live per-notch scrolling
+  sen_ch1_cw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_1|pos_1_cw)$') | list %}
+    {{ ovr_sen_ch1_cw if ovr_sen_ch1_cw else (l[0] if l else '') }}
+  sen_ch1_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_2|pos_1_ccw)$') | list %}
+    {{ ovr_sen_ch1_ccw if ovr_sen_ch1_ccw else (l[0] if l else '') }}
+  sen_ch2_cw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_4|pos_2_cw)$') | list %}
+    {{ ovr_sen_ch2_cw if ovr_sen_ch2_cw else (l[0] if l else '') }}
+  sen_ch2_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_5|pos_2_ccw)$') | list %}
+    {{ ovr_sen_ch2_ccw if ovr_sen_ch2_ccw else (l[0] if l else '') }}
+  sen_ch3_cw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_7|pos_3_cw)$') | list %}
+    {{ ovr_sen_ch3_cw if ovr_sen_ch3_cw else (l[0] if l else '') }}
+  sen_ch3_ccw: >-
+    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_8|pos_3_ccw)$') | list %}
+    {{ ovr_sen_ch3_ccw if ovr_sen_ch3_ccw else (l[0] if l else '') }}
+
+# State triggers do not accept templates, so state_changed events are used instead.
+# Trigger id format: ch<N>_<cw|ccw|press>[_live]
+triggers:
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch1_cw }}"
+    id: ch1_cw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch1_ccw }}"
+    id: ch1_ccw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch1_press }}"
+    id: ch1_press
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch1_cw }}"
+    id: ch1_cw_live
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch1_ccw }}"
+    id: ch1_ccw_live
+
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch2_cw }}"
+    id: ch2_cw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch2_ccw }}"
+    id: ch2_ccw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch2_press }}"
+    id: ch2_press
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch2_cw }}"
+    id: ch2_cw_live
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch2_ccw }}"
+    id: ch2_ccw_live
+
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch3_cw }}"
+    id: ch3_cw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch3_ccw }}"
+    id: ch3_ccw
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ ent_ch3_press }}"
+    id: ch3_press
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch3_cw }}"
+    id: ch3_cw_live
+  - trigger: event
+    event_type: state_changed
+    event_data:
+      entity_id: "{{ sen_ch3_ccw }}"
+    id: ch3_ccw_live
+
+# Ignore startup restores, availability changes and attribute-only updates.
+conditions:
+  - condition: template
+    value_template: >-
+      {% set d = trigger.event.data %}
+      {{ d.old_state is not none and d.new_state is not none
+         and d.old_state.state not in ['unavailable', 'unknown']
+         and d.new_state.state not in ['unavailable', 'unknown']
+         and d.old_state.state != d.new_state.state }}
+
+variables:
+  ch1_mode: !input ch1_mode
+  ch2_mode: !input ch2_mode
+  ch3_mode: !input ch3_mode
+  ch1_lights: !input ch1_lights
+  ch2_lights: !input ch2_lights
+  ch3_lights: !input ch3_lights
+  brightness_step: !input brightness_step
+  min_brightness: !input min_brightness
+  dim_up_turns_on: !input dim_up_turns_on
+  dim_down_turns_off: !input dim_down_turns_off
+  color_temp_step: !input color_temp_step
+  transition: !input transition
+  press_toggles_lights: !input press_toggles_lights
+  reverse_direction: !input reverse_direction
+  scroll_mode: !input scroll_mode
+  hold_repeat_delay: !input hold_repeat_delay
+
+actions:
+  - variables:
+      channel: "{{ trigger.id[2] | int }}"
+      part: "{{ trigger.id.split('_')[1] }}"
+      is_live: "{{ trigger.id.endswith('_live') }}"
+      new_state: "{{ trigger.event.data.new_state.state }}"
+      event_type: "{{ trigger.event.data.new_state.attributes.event_type | default('') }}"
+      source_entity: "{{ trigger.event.data.entity_id }}"
+      wheel_mode: "{{ {1: ch1_mode, 2: ch2_mode, 3: ch3_mode}[channel] }}"
+      lights: "{{ {1: ch1_lights, 2: ch2_lights, 3: ch3_lights}[channel] }}"
+      direction: "{{ 'up' if ((part == 'cw') != reverse_direction) else 'down' }}"
+      steps: >-
+        {{ 1 if is_live else (trigger.event.data.new_state.attributes.totalNumberOfPressesCounted | default(1) | int(1)) }}
+      live_sensor: >-
+        {{ {1: {'cw': sen_ch1_cw, 'ccw': sen_ch1_ccw},
+            2: {'cw': sen_ch2_cw, 'ccw': sen_ch2_ccw},
+            3: {'cw': sen_ch3_cw, 'ccw': sen_ch3_ccw}}[channel][part] if part != 'press' else '' }}
+      # True when live per-notch events should be used for this channel and direction
+      live_active: >-
+        {{ scroll_mode == 'live'
+           or (scroll_mode == 'auto' and live_sensor != ''
+               and states(live_sensor) not in ['unknown', 'unavailable']) }}
+
+  - choose:
+      # ---------------------------------------------------------------- wheel
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ part in ['cw', 'ccw'] and (
+                   (not is_live and event_type.startswith('multi_press_') and not live_active)
+                   or (is_live and new_state | string == '1' and scroll_mode != 'batched')
+                 ) }}
+        sequence:
+          - choose:
+              # ---- brightness
+              - conditions: "{{ wheel_mode == 'brightness' }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ lights }}"
+                      sequence:
+                        - variables:
+                            cur_pct: "{{ ((state_attr(repeat.item, 'brightness') | int(0)) / 255 * 100) | round(0) | int }}"
+                            delta: "{{ steps * brightness_step * (1 if direction == 'up' else -1) }}"
+                            target_pct: "{{ [[cur_pct + delta, 100] | min, 0] | max | int }}"
+                        - choose:
+                            - conditions: "{{ is_state(repeat.item, 'on') and direction == 'up' }}"
+                              sequence:
+                                - action: light.turn_on
+                                  target:
+                                    entity_id: "{{ repeat.item }}"
+                                  data:
+                                    brightness_pct: "{{ target_pct }}"
+                                    transition: "{{ transition }}"
+                            - conditions: "{{ is_state(repeat.item, 'on') and target_pct < min_brightness and dim_down_turns_off }}"
+                              sequence:
+                                - action: light.turn_off
+                                  target:
+                                    entity_id: "{{ repeat.item }}"
+                                  data:
+                                    transition: "{{ transition }}"
+                            - conditions: "{{ is_state(repeat.item, 'on') }}"
+                              sequence:
+                                - action: light.turn_on
+                                  target:
+                                    entity_id: "{{ repeat.item }}"
+                                  data:
+                                    brightness_pct: "{{ [target_pct, min_brightness] | max | int }}"
+                                    transition: "{{ transition }}"
+                            - conditions: "{{ is_state(repeat.item, 'off') and direction == 'up' and dim_up_turns_on }}"
+                              sequence:
+                                - action: light.turn_on
+                                  target:
+                                    entity_id: "{{ repeat.item }}"
+                                  data:
+                                    brightness_pct: "{{ [[delta, min_brightness] | max, 100] | min | int }}"
+                                    transition: "{{ transition }}"
+
+              # ---- color temperature
+              - conditions: "{{ wheel_mode == 'color_temp' }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ lights }}"
+                      sequence:
+                        - variables:
+                            min_k: "{{ state_attr(repeat.item, 'min_color_temp_kelvin') | int(2000) }}"
+                            max_k: "{{ state_attr(repeat.item, 'max_color_temp_kelvin') | int(6500) }}"
+                            cur_k: "{{ state_attr(repeat.item, 'color_temp_kelvin') | int(((min_k + max_k) / 2) | int) }}"
+                            delta_k: "{{ steps * color_temp_step * (1 if direction == 'up' else -1) }}"
+                            target_k: "{{ [[cur_k + delta_k, max_k] | min, min_k] | max | int }}"
+                        - if:
+                            - condition: template
+                              value_template: "{{ is_state(repeat.item, 'on') }}"
+                          then:
+                            - action: light.turn_on
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                color_temp_kelvin: "{{ target_k }}"
+                                transition: "{{ transition }}"
+
+              # ---- custom actions
+              - conditions: "{{ wheel_mode == 'custom' }}"
+                sequence:
+                  - choose:
+                      - conditions: "{{ channel == 1 and direction == 'up' }}"
+                        sequence: !input ch1_scroll_up
+                      - conditions: "{{ channel == 1 and direction == 'down' }}"
+                        sequence: !input ch1_scroll_down
+                      - conditions: "{{ channel == 2 and direction == 'up' }}"
+                        sequence: !input ch2_scroll_up
+                      - conditions: "{{ channel == 2 and direction == 'down' }}"
+                        sequence: !input ch2_scroll_down
+                      - conditions: "{{ channel == 3 and direction == 'up' }}"
+                        sequence: !input ch3_scroll_up
+                      - conditions: "{{ channel == 3 and direction == 'down' }}"
+                        sequence: !input ch3_scroll_down
+
+      # ---------------------------------------------------------------- button: single press
+      - conditions: "{{ part == 'press' and event_type == 'multi_press_1' }}"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ press_toggles_lights and wheel_mode in ['brightness', 'color_temp'] and lights | length > 0 }}"
+            then:
+              - action: light.toggle
+                target:
+                  entity_id: "{{ lights }}"
+                data:
+                  transition: "{{ transition }}"
+          - choose:
+              - conditions: "{{ channel == 1 }}"
+                sequence: !input ch1_press
+              - conditions: "{{ channel == 2 }}"
+                sequence: !input ch2_press
+              - conditions: "{{ channel == 3 }}"
+                sequence: !input ch3_press
+
+      # ---------------------------------------------------------------- button: double press
+      - conditions: "{{ part == 'press' and event_type == 'multi_press_2' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ channel == 1 }}"
+                sequence: !input ch1_double
+              - conditions: "{{ channel == 2 }}"
+                sequence: !input ch2_double
+              - conditions: "{{ channel == 3 }}"
+                sequence: !input ch3_double
+
+      # ---------------------------------------------------------------- button: triple press
+      - conditions: "{{ part == 'press' and event_type == 'multi_press_3' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ channel == 1 }}"
+                sequence: !input ch1_triple
+              - conditions: "{{ channel == 2 }}"
+                sequence: !input ch2_triple
+              - conditions: "{{ channel == 3 }}"
+                sequence: !input ch3_triple
+
+      # ---------------------------------------------------------------- button: long press + hold
+      - conditions: "{{ part == 'press' and event_type == 'long_press' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ channel == 1 }}"
+                sequence: !input ch1_long
+              - conditions: "{{ channel == 2 }}"
+                sequence: !input ch2_long
+              - conditions: "{{ channel == 3 }}"
+                sequence: !input ch3_long
+          # Repeat the hold action until the button entity reports the release.
+          - repeat:
+              while:
+                - condition: template
+                  value_template: >-
+                    {{ repeat.index <= 400 and state_attr(source_entity, 'event_type') == 'long_press' }}
+              sequence:
+                - choose:
+                    - conditions: "{{ channel == 1 }}"
+                      sequence: !input ch1_hold
+                    - conditions: "{{ channel == 2 }}"
+                      sequence: !input ch2_hold
+                    - conditions: "{{ channel == 3 }}"
+                      sequence: !input ch3_hold
+                - delay:
+                    seconds: "{{ hold_repeat_delay }}"
+
+      # ---------------------------------------------------------------- button: release after hold
+      - conditions: "{{ part == 'press' and event_type == 'long_release' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ channel == 1 }}"
+                sequence: !input ch1_release
+              - conditions: "{{ channel == 2 }}"
+                sequence: !input ch2_release
+              - conditions: "{{ channel == 3 }}"
+                sequence: !input ch3_release
