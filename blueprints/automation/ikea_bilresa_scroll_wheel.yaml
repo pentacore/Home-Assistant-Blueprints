@@ -5,18 +5,24 @@ blueprint:
 
 
     Pick the remote, then for each of the three channels choose what the wheel
-    controls (brightness, color temperature or your own actions) and which lights
-    it targets. Single press toggles the lights by default. Double, triple, long
-    press, hold and release are available as custom actions.
+    controls (brightness, color temperature, hue, a combined mode or your own
+    actions) and which lights it targets. Single press toggles the lights by
+    default. Double, triple, long press, hold and release are available as custom
+    actions.
+
+
+    Combined mode: turn for brightness, double press then turn for color
+    temperature, triple press then turn for hue. The color window closes after a
+    few seconds (see Behaviour).
 
 
     Switch channels on the remote with the small button below the three LEDs.
 
 
     Scrolling arrives as one batched event when you stop turning the wheel.
-    For per-notch live response, enable the hidden "Current position" sensors on the
-    BILRESA device page (Settings > Devices > BILRESA > 9 entities not shown); the
-    blueprint picks them up automatically.
+    For per-notch live response, enable the hidden "Current switch position"
+    sensors on the BILRESA device page (Settings > Devices > BILRESA > entities
+    not shown), set "Scroll response" to Live, and save the automation.
   domain: automation
   author: pentacore
   source_url: https://github.com/pentacore/Home-Assistant-Blueprints/blob/main/blueprints/automation/ikea_bilresa_scroll_wheel.yaml
@@ -50,6 +56,10 @@ blueprint:
                   value: brightness
                 - label: Light color temperature
                   value: color_temp
+                - label: Light color (hue)
+                  value: hue
+                - label: "Brightness + color (double press = color temp, triple = hue)"
+                  value: combo
                 - label: Custom actions
                   value: custom
         ch1_lights:
@@ -126,6 +136,10 @@ blueprint:
                   value: brightness
                 - label: Light color temperature
                   value: color_temp
+                - label: Light color (hue)
+                  value: hue
+                - label: "Brightness + color (double press = color temp, triple = hue)"
+                  value: combo
                 - label: Custom actions
                   value: custom
         ch2_lights:
@@ -202,6 +216,10 @@ blueprint:
                   value: brightness
                 - label: Light color temperature
                   value: color_temp
+                - label: Light color (hue)
+                  value: hue
+                - label: "Brightness + color (double press = color temp, triple = hue)"
+                  value: combo
                 - label: Custom actions
                   value: custom
         ch3_lights:
@@ -312,6 +330,30 @@ blueprint:
               step: 25
               unit_of_measurement: K
               mode: slider
+        hue_step:
+          name: Hue per notch
+          description: Change in hue (degrees on the color wheel) for each notch.
+          default: 10
+          selector:
+            number:
+              min: 1
+              max: 90
+              step: 1
+              unit_of_measurement: "°"
+              mode: slider
+        hue_saturation:
+          name: Saturation for hue mode
+          description: >-
+            Saturation used when a light is switched from white to color by the wheel.
+            Lights already showing a color keep their saturation.
+          default: 100
+          selector:
+            number:
+              min: 10
+              max: 100
+              step: 5
+              unit_of_measurement: "%"
+              mode: slider
         transition:
           name: Transition
           description: Transition time for light changes.
@@ -345,20 +387,31 @@ blueprint:
         scroll_mode:
           name: Scroll response
           description: >-
-            Auto uses live per-notch response when the hidden "Current position" sensors of the
-            BILRESA are enabled and falls back to batched otherwise. Batched waits until you stop
-            turning and applies all notches at once (max 8).
-          default: auto
+            Batched waits until you stop turning and applies all notches at once (max 8).
+            Live reacts to every notch but requires the hidden "Current switch position"
+            sensors of the BILRESA to be enabled. Save the automation after enabling them.
+          default: batched
           selector:
             select:
               mode: dropdown
               options:
-                - label: Auto (recommended)
-                  value: auto
-                - label: Batched
+                - label: Batched (default)
                   value: batched
-                - label: Live (requires the Current position sensors)
+                - label: Live (requires the Current switch position sensors)
                   value: live
+        color_window:
+          name: Color window (combined mode)
+          description: >-
+            After a double or triple press the wheel changes color instead of brightness
+            for this long.
+          default: 15
+          selector:
+            number:
+              min: 3
+              max: 60
+              step: 1
+              unit_of_measurement: s
+              mode: slider
         hold_repeat_delay:
           name: Hold repeat interval
           description: Time between repeats of the "Hold (repeating)" action.
@@ -445,42 +498,42 @@ blueprint:
               filter:
                 - domain: event
         ovr_sen_ch1_cw:
-          name: Channel 1 - scroll up "Current position" sensor (live mode)
+          name: Channel 1 - scroll up "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
               filter:
                 - domain: sensor
         ovr_sen_ch1_ccw:
-          name: Channel 1 - scroll down "Current position" sensor (live mode)
+          name: Channel 1 - scroll down "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
               filter:
                 - domain: sensor
         ovr_sen_ch2_cw:
-          name: Channel 2 - scroll up "Current position" sensor (live mode)
+          name: Channel 2 - scroll up "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
               filter:
                 - domain: sensor
         ovr_sen_ch2_ccw:
-          name: Channel 2 - scroll down "Current position" sensor (live mode)
+          name: Channel 2 - scroll down "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
               filter:
                 - domain: sensor
         ovr_sen_ch3_cw:
-          name: Channel 3 - scroll up "Current position" sensor (live mode)
+          name: Channel 3 - scroll up "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
               filter:
                 - domain: sensor
         ovr_sen_ch3_ccw:
-          name: Channel 3 - scroll down "Current position" sensor (live mode)
+          name: Channel 3 - scroll down "Current switch position" sensor (live mode)
           default: null
           selector:
             entity:
@@ -663,6 +716,9 @@ variables:
   dim_up_turns_on: !input dim_up_turns_on
   dim_down_turns_off: !input dim_down_turns_off
   color_temp_step: !input color_temp_step
+  hue_step: !input hue_step
+  hue_saturation: !input hue_saturation
+  color_window: !input color_window
   transition: !input transition
   press_toggles_lights: !input press_toggles_lights
   reverse_direction: !input reverse_direction
@@ -682,15 +738,23 @@ actions:
       direction: "{{ 'up' if ((part == 'cw') != reverse_direction) else 'down' }}"
       steps: >-
         {{ 1 if is_live else (trigger.event.data.new_state.attributes.totalNumberOfPressesCounted | default(1) | int(1)) }}
-      live_sensor: >-
-        {{ {1: {'cw': sen_ch1_cw, 'ccw': sen_ch1_ccw},
-            2: {'cw': sen_ch2_cw, 'ccw': sen_ch2_ccw},
-            3: {'cw': sen_ch3_cw, 'ccw': sen_ch3_ccw}}[channel][part] if part != 'press' else '' }}
-      # True when live per-notch events should be used for this channel and direction
-      live_active: >-
-        {{ scroll_mode == 'live'
-           or (scroll_mode == 'auto' and live_sensor != ''
-               and states(live_sensor) not in ['unknown', 'unavailable']) }}
+      press_entity: "{{ {1: ent_ch1_press, 2: ent_ch2_press, 3: ent_ch3_press}[channel] }}"
+      # What the wheel does right now. In combined mode a recent double press selects
+      # color temperature and a recent triple press selects hue; otherwise brightness.
+      wheel_function: >-
+        {% if wheel_mode == 'combo' %}
+          {% set last = state_attr(press_entity, 'event_type') %}
+          {% set age = as_timestamp(now()) - as_timestamp(states(press_entity), 0) %}
+          {% if last == 'multi_press_2' and age < color_window %}
+            color_temp
+          {% elif last == 'multi_press_3' and age < color_window %}
+            hue
+          {% else %}
+            brightness
+          {% endif %}
+        {% else %}
+          {{ wheel_mode }}
+        {% endif %}
 
   - choose:
       # ---------------------------------------------------------------- wheel
@@ -698,13 +762,13 @@ actions:
           - condition: template
             value_template: >-
               {{ part in ['cw', 'ccw'] and (
-                   (not is_live and event_type.startswith('multi_press_') and not live_active)
-                   or (is_live and new_state | string == '1' and scroll_mode != 'batched')
+                   (not is_live and scroll_mode == 'batched' and event_type.startswith('multi_press_'))
+                   or (is_live and scroll_mode == 'live' and new_state | string == '1')
                  ) }}
         sequence:
           - choose:
               # ---- brightness
-              - conditions: "{{ wheel_mode == 'brightness' }}"
+              - conditions: "{{ wheel_function == 'brightness' }}"
                 sequence:
                   - repeat:
                       for_each: "{{ lights }}"
@@ -747,7 +811,7 @@ actions:
                                     transition: "{{ transition }}"
 
               # ---- color temperature
-              - conditions: "{{ wheel_mode == 'color_temp' }}"
+              - conditions: "{{ wheel_function == 'color_temp' }}"
                 sequence:
                   - repeat:
                       for_each: "{{ lights }}"
@@ -760,7 +824,9 @@ actions:
                             target_k: "{{ [[cur_k + delta_k, max_k] | min, min_k] | max | int }}"
                         - if:
                             - condition: template
-                              value_template: "{{ is_state(repeat.item, 'on') }}"
+                              value_template: >-
+                                {{ is_state(repeat.item, 'on')
+                                   and 'color_temp' in (state_attr(repeat.item, 'supported_color_modes') or []) }}
                           then:
                             - action: light.turn_on
                               target:
@@ -769,8 +835,35 @@ actions:
                                 color_temp_kelvin: "{{ target_k }}"
                                 transition: "{{ transition }}"
 
+              # ---- hue
+              - conditions: "{{ wheel_function == 'hue' }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ lights }}"
+                      sequence:
+                        - variables:
+                            supports_color: >-
+                              {{ (state_attr(repeat.item, 'supported_color_modes') or [])
+                                 | select('in', ['hs', 'rgb', 'rgbw', 'rgbww', 'xy']) | list | length > 0 }}
+                            showing_color: "{{ state_attr(repeat.item, 'color_mode') in ['hs', 'rgb', 'rgbw', 'rgbww', 'xy'] }}"
+                            cur_hs: "{{ state_attr(repeat.item, 'hs_color') or [0, 0] }}"
+                            cur_hue: "{{ cur_hs[0] if showing_color else 0 }}"
+                            sat: "{{ cur_hs[1] if (showing_color and cur_hs[1] > 0) else hue_saturation }}"
+                            delta_h: "{{ steps * hue_step * (1 if direction == 'up' else -1) }}"
+                            target_hue: "{{ ((cur_hue + delta_h) % 360) | round(1) }}"
+                        - if:
+                            - condition: template
+                              value_template: "{{ is_state(repeat.item, 'on') and supports_color }}"
+                          then:
+                            - action: light.turn_on
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                hs_color: "{{ [target_hue, sat] }}"
+                                transition: "{{ transition }}"
+
               # ---- custom actions
-              - conditions: "{{ wheel_mode == 'custom' }}"
+              - conditions: "{{ wheel_function == 'custom' }}"
                 sequence:
                   - choose:
                       - conditions: "{{ channel == 1 and direction == 'up' }}"
@@ -791,7 +884,7 @@ actions:
         sequence:
           - if:
               - condition: template
-                value_template: "{{ press_toggles_lights and wheel_mode in ['brightness', 'color_temp'] and lights | length > 0 }}"
+                value_template: "{{ press_toggles_lights and wheel_mode != 'custom' and lights | length > 0 }}"
             then:
               - action: light.toggle
                 target:

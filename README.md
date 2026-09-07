@@ -4,7 +4,7 @@ A collection of Home Assistant blueprints.
 
 | Blueprint | Description | Import |
 | --- | --- | --- |
-| [IKEA BILRESA Scroll Wheel (Matter)](#ikea-bilresa-scroll-wheel-matter) | Control lights with the IKEA BILRESA scroll wheel remote over Matter. All 3 channels, brightness, color temperature, custom actions, single/double/triple/long press and hold. | [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fpentacore%2FHome-Assistant-Blueprints%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fikea_bilresa_scroll_wheel.yaml) |
+| [IKEA BILRESA Scroll Wheel (Matter)](#ikea-bilresa-scroll-wheel-matter) | Control lights with the IKEA BILRESA scroll wheel remote over Matter. All 3 channels, brightness, color temperature, hue, a combined mode, custom actions, single/double/triple/long press and hold. | [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fpentacore%2FHome-Assistant-Blueprints%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fikea_bilresa_scroll_wheel.yaml) |
 
 ## IKEA BILRESA Scroll Wheel (Matter)
 
@@ -25,26 +25,37 @@ One automation covers the whole remote. Channels without lights or custom action
 
 | Input | What it does |
 | --- | --- |
-| Wheel controls | **Light brightness**, **Light color temperature** or **Custom actions** |
+| Wheel controls | **Light brightness**, **Light color temperature**, **Light color (hue)**, **Brightness + color** or **Custom actions** |
 | Lights | Lights driven by the wheel and toggled by a single press |
 | Custom scroll up / down | Your own actions when the mode is Custom actions. Variables: `steps` (1 to 8 notches), `direction` (`up` or `down`), `channel` (1 to 3) |
 | Single press | Runs after the default light toggle (the toggle can be turned off under Behaviour) |
-| Double press, Triple press | Custom actions |
+| Double press, Triple press | Custom actions. In the combined mode they also open the color window (see below) |
 | Long press | Runs once when the hold is detected |
 | Hold (repeating) | Repeats every *Hold repeat interval* until the button is released |
 | Release after hold | Custom action |
 
+### Brightness and color on one channel (combined mode)
+
+Set *Wheel controls* to **Brightness + color**. Turning the wheel changes brightness. **Double press**, then turn, changes color temperature. **Triple press**, then turn, changes hue on color lights. The color window stays open for 15 seconds after the press (adjustable under Behaviour), then the wheel returns to brightness. No helper entities are needed.
+
+Lights that do not support the requested color type are skipped, so a mixed group of white and RGB lights works: double press affects the white-capable ones, triple press the color-capable ones.
+
 ### Settings
 
-**Light settings**: brightness per notch (default 10 %), minimum brightness (5 %), scroll up turns lights on (on), scroll down turns lights off (off), color temperature per notch (150 K, clockwise is cooler), transition (0.3 s).
+**Light settings**: brightness per notch (default 10 %), minimum brightness (5 %), scroll up turns lights on (on), scroll down turns lights off (off), color temperature per notch (150 K, clockwise is cooler), hue per notch (10 degrees), saturation for hue mode (100 %, used when a light switches from white to color), transition (0.3 s).
 
-**Behaviour**: single press toggles the lights, reverse wheel direction, scroll response, hold repeat interval.
+**Behaviour**: single press toggles the lights, reverse wheel direction, scroll response, color window, hold repeat interval.
 
 ### Scroll response: batched vs live
 
 Home Assistant's Matter integration reports a scroll as **one event after you stop turning**, containing the number of notches. It caps that number at 8 and drops anything above, so a very fast spin can be lost. This is the default **batched** behaviour and needs no setup.
 
-For **live** per-notch response, open the BILRESA device page in Home Assistant, show the hidden entities and enable the nine **Current position** sensors. With *Scroll response* set to **Auto** the blueprint switches to live mode on its own as soon as those sensors are enabled. Live mode sends one light update per notch, so it feels smoother but generates more traffic.
+For **live** per-notch response:
+
+1. Open the BILRESA device page in Home Assistant, show the hidden entities and enable the nine **Current switch position** sensors.
+2. In the automation set *Scroll response* to **Live** and save. Saving matters: the blueprint looks up the device's entities when the automation loads, and disabled entities are invisible to it.
+
+Live mode sends one light update per notch, so it feels smoother but generates more traffic.
 
 ### How the entities are found
 
