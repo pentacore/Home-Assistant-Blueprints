@@ -67,7 +67,9 @@ The BILRESA appears as nine `event` entities, one per Matter endpoint:
 | 2 | endpoint 4 | endpoint 5 | endpoint 6 |
 | 3 | endpoint 7 | endpoint 8 | endpoint 9 |
 
-The blueprint finds them from the selected device by matching entity IDs ending in `_1` to `_9` (for example `event.bilresa_scroll_wheel_button_4`) or in `pos_N_cw`, `pos_N_ccw`, `pos_N_press`. If you renamed the entity IDs so this no longer matches, set them by hand under **Advanced - manual entity mapping**.
+The blueprint finds them from the selected device by the endpoint number in the entity ID (for example `event.bilresa_scroll_wheel_button_4`, localized names such as `..._knapp_4` work too) or by label (`..._pos_2_cw`). Home Assistant appends a number when an entity ID already exists, for example after re-adding the device (`..._knapp_4_3`); that suffix is detected and handled. If none of this matches, the nine event entities sorted by name are used in endpoint order, and you can always set them by hand under **Advanced - manual entity mapping**.
+
+After re-importing the blueprint or changing the device's entities, open the automation and save it once so the entity lookup runs again.
 
 ### Events used
 

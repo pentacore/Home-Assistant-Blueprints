@@ -431,8 +431,9 @@ blueprint:
       collapsed: true
       description: >-
         Only needed if you renamed the BILRESA entities so that the automatic detection fails.
-        Entities are detected by their ID ending in _1 to _9 (Matter endpoint) or pos_N_cw /
-        pos_N_ccw / pos_N_press. Anything you set here overrides the detection.
+        Entities are detected by the Matter endpoint number in their ID (for example
+        "..._button_4" or "..._button_4_2") or by label ("..._pos_2_cw"). Anything you set
+        here overrides the detection.
       input:
         ovr_ch1_cw:
           name: Channel 1 - scroll up event (endpoint 1)
@@ -564,53 +565,64 @@ trigger_variables:
   ovr_sen_ch3_cw: !input ovr_sen_ch3_cw
   ovr_sen_ch3_ccw: !input ovr_sen_ch3_ccw
 
-  # Matter endpoints: channel N -> clockwise 3N-2, counter-clockwise 3N-1, button 3N
-  ent_ch1_cw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_1|pos_1_cw)$') | list %}
-    {{ ovr_ch1_cw if ovr_ch1_cw else (l[0] if l else '') }}
-  ent_ch1_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_2|pos_1_ccw)$') | list %}
-    {{ ovr_ch1_ccw if ovr_ch1_ccw else (l[0] if l else '') }}
-  ent_ch1_press: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_3|pos_1_press)$') | list %}
-    {{ ovr_ch1_press if ovr_ch1_press else (l[0] if l else '') }}
-  ent_ch2_cw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_4|pos_2_cw)$') | list %}
-    {{ ovr_ch2_cw if ovr_ch2_cw else (l[0] if l else '') }}
-  ent_ch2_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_5|pos_2_ccw)$') | list %}
-    {{ ovr_ch2_ccw if ovr_ch2_ccw else (l[0] if l else '') }}
-  ent_ch2_press: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_6|pos_2_press)$') | list %}
-    {{ ovr_ch2_press if ovr_ch2_press else (l[0] if l else '') }}
-  ent_ch3_cw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_7|pos_3_cw)$') | list %}
-    {{ ovr_ch3_cw if ovr_ch3_cw else (l[0] if l else '') }}
-  ent_ch3_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_8|pos_3_ccw)$') | list %}
-    {{ ovr_ch3_ccw if ovr_ch3_ccw else (l[0] if l else '') }}
-  ent_ch3_press: >-
-    {% set l = device_entities(remote) | select('match', '^event[.].*(_9|pos_3_press)$') | list %}
-    {{ ovr_ch3_press if ovr_ch3_press else (l[0] if l else '') }}
+  # Entity IDs of the remote. Home Assistant appends a number when an entity ID already
+  # exists (for example after re-adding the device), turning "knapp_1" into "knapp_1_3".
+  # That suffix is detected from the first wheel entity and applied to every lookup.
+  bilresa_events: "{{ device_entities(remote) | select('match', '^event[.]') | sort | list }}"
+  bilresa_sensors: "{{ device_entities(remote) | select('match', '^sensor[.]') | list }}"
+  id_suffix: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_1|pos_1_cw)(_[0-9]+)?$') | list %}
+    {{ l[0] | regex_findall_index('(?:[a-z]_1|pos_1_cw)(_[0-9]+)?$', 0) if l else '' }}
 
-  # Hidden "Current position" sensors, used for live per-notch scrolling
+  # Matter endpoints: channel N -> clockwise 3N-2, counter-clockwise 3N-1, button 3N.
+  # Matched by endpoint number ("..._knapp_4") or by label ("..._pos_2_cw"). If neither
+  # matches, the nine event entities sorted by name are used in endpoint order.
+  ent_ch1_cw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_1|pos_1_cw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch1_cw if ovr_ch1_cw else (l[0] if l else (bilresa_events[0] if bilresa_events | length == 9 else '')) }}
+  ent_ch1_ccw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_2|pos_1_ccw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch1_ccw if ovr_ch1_ccw else (l[0] if l else (bilresa_events[1] if bilresa_events | length == 9 else '')) }}
+  ent_ch1_press: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_3|pos_1_press)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch1_press if ovr_ch1_press else (l[0] if l else (bilresa_events[2] if bilresa_events | length == 9 else '')) }}
+  ent_ch2_cw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_4|pos_2_cw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch2_cw if ovr_ch2_cw else (l[0] if l else (bilresa_events[3] if bilresa_events | length == 9 else '')) }}
+  ent_ch2_ccw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_5|pos_2_ccw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch2_ccw if ovr_ch2_ccw else (l[0] if l else (bilresa_events[4] if bilresa_events | length == 9 else '')) }}
+  ent_ch2_press: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_6|pos_2_press)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch2_press if ovr_ch2_press else (l[0] if l else (bilresa_events[5] if bilresa_events | length == 9 else '')) }}
+  ent_ch3_cw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_7|pos_3_cw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch3_cw if ovr_ch3_cw else (l[0] if l else (bilresa_events[6] if bilresa_events | length == 9 else '')) }}
+  ent_ch3_ccw: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_8|pos_3_ccw)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch3_ccw if ovr_ch3_ccw else (l[0] if l else (bilresa_events[7] if bilresa_events | length == 9 else '')) }}
+  ent_ch3_press: >-
+    {% set l = bilresa_events | select('match', '^event[.].*([a-z]_9|pos_3_press)' ~ id_suffix ~ '$') | list %}
+    {{ ovr_ch3_press if ovr_ch3_press else (l[0] if l else (bilresa_events[8] if bilresa_events | length == 9 else '')) }}
+
+  # Hidden "Current switch position" sensors, used for live per-notch scrolling
   sen_ch1_cw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_1|pos_1_cw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_1|pos_1_cw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch1_cw if ovr_sen_ch1_cw else (l[0] if l else '') }}
   sen_ch1_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_2|pos_1_ccw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_2|pos_1_ccw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch1_ccw if ovr_sen_ch1_ccw else (l[0] if l else '') }}
   sen_ch2_cw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_4|pos_2_cw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_4|pos_2_cw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch2_cw if ovr_sen_ch2_cw else (l[0] if l else '') }}
   sen_ch2_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_5|pos_2_ccw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_5|pos_2_ccw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch2_ccw if ovr_sen_ch2_ccw else (l[0] if l else '') }}
   sen_ch3_cw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_7|pos_3_cw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_7|pos_3_cw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch3_cw if ovr_sen_ch3_cw else (l[0] if l else '') }}
   sen_ch3_ccw: >-
-    {% set l = device_entities(remote) | select('match', '^sensor[.].*(_8|pos_3_ccw)$') | list %}
+    {% set l = bilresa_sensors | select('match', '^sensor[.].*([a-z]_8|pos_3_ccw)' ~ id_suffix ~ '$') | list %}
     {{ ovr_sen_ch3_ccw if ovr_sen_ch3_ccw else (l[0] if l else '') }}
 
 # State triggers do not accept templates, so state_changed events are used instead.
