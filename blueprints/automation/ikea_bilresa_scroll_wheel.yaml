@@ -742,7 +742,7 @@ actions:
       # What the wheel does right now. In combined mode a recent double press selects
       # color temperature and a recent triple press selects hue; otherwise brightness.
       wheel_function: >-
-        {% if wheel_mode == 'combo' %}
+        {% if wheel_mode == 'combo' and press_entity and has_value(press_entity) %}
           {% set last = state_attr(press_entity, 'event_type') %}
           {% set age = as_timestamp(now()) - as_timestamp(states(press_entity), 0) %}
           {% if last == 'multi_press_2' and age < color_window %}
@@ -752,6 +752,8 @@ actions:
           {% else %}
             brightness
           {% endif %}
+        {% elif wheel_mode == 'combo' %}
+          brightness
         {% else %}
           {{ wheel_mode }}
         {% endif %}
